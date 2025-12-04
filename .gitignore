@@ -12,6 +12,12 @@ env/
 .env.*.local
 *.env
 
+# Credentials (NEVER COMMIT!)
+CREDENTIALS*.md
+CREDENTIALS*.local*
+*.secrets
+secrets.txt
+
 # IDE
 .idea/
 .vscode/
