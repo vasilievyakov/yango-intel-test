@@ -10,8 +10,8 @@ alembic==1.13.1
 psycopg2-binary==2.9.9
 
 # Validation & Serialization
-pydantic==2.5.3
-pydantic-settings==2.1.0
+pydantic>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
 
 # Authentication
 python-jose[cryptography]==3.3.0
