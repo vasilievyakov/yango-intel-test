@@ -52,7 +52,7 @@ interface NewsResponse {
     pages: number
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://yango-intel-test.onrender.com'
+const API_URL = 'https://yango-intel-test.onrender.com'
 
 const competitorColors: Record<string, string> = {
     uber: 'bg-black text-white',
