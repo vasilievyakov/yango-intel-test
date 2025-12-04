@@ -267,9 +267,9 @@ class NewsScraperService:
                     json={
                         "objective": objective,
                         "search_queries": search_queries,
-                        "max_results": 10,
+                        "max_results": 15,  # Increased for more coverage
                         "excerpts": {
-                            "max_chars_per_result": 5000
+                            "max_chars_per_result": 3000
                         }
                     },
                     timeout=60.0,

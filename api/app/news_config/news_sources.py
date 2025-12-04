@@ -208,29 +208,106 @@ SEARCH_QUERY_TEMPLATES = {
 # =============================================================================
 
 # Эти запросы выполняются автоматически при нажатии кнопки "Обновить данные"
+# Расширенный список для сбора 150-200 новостей за последние 3 месяца
+
 PREDEFINED_QUERIES: List[str] = [
-    # Конкуренты + промо/новости
-    "Uber Peru promociones descuentos noticias 2024 2025",
-    "inDrive Peru promociones conductores noticias 2024 2025",
-    "DiDi Peru promociones descuentos noticias 2024 2025",
-    "Cabify Peru noticias promociones 2024 2025",
-    "Yango Peru noticias promociones 2024 2025",
+    # === UBER ===
+    "Uber Peru noticias octubre noviembre diciembre 2024",
+    "Uber Lima promociones descuentos 2024",
+    "Uber Peru nuevas funciones actualización app 2024",
+    "Uber Peru conductores comisión tarifas 2024",
+    "Uber Peru seguridad pasajeros conductores",
+    "Uber Eats Peru delivery noticias 2024",
+    "Uber Peru expansión ciudades provincias",
     
-    # Рыночные новости
-    "taxi aplicativo Peru regulación ATU MTC 2024 2025",
-    "Uber inDrive DiDi competencia Peru Lima 2024",
+    # === inDrive ===
+    "inDrive Peru noticias octubre noviembre diciembre 2024",
+    "inDrive Lima promociones descuentos conductores 2024",
+    "inDrive Peru nuevas funciones app actualización",
+    "inDrive Peru tarifas precios negociación",
+    "inDrive Peru seguridad robos incidentes",
+    "inDrive Peru expansión mercado crecimiento",
     
-    # Изменения тарифов и комиссий  
-    "Uber inDrive DiDi comisión conductores Peru 2024",
+    # === DiDi ===
+    "DiDi Peru noticias octubre noviembre diciembre 2024",
+    "DiDi Lima promociones descuentos cupones 2024",
+    "DiDi Peru conductores comisión bonos incentivos",
+    "DiDi Peru nuevas funciones app seguridad",
+    "DiDi Food Peru delivery noticias",
+    "DiDi Express Peru tarifas precios",
     
-    # Безопасность
-    "taxi aplicativo seguridad robos Peru Lima 2024",
+    # === Cabify ===
+    "Cabify Peru noticias octubre noviembre diciembre 2024",
+    "Cabify Lima promociones empresas corporativo",
+    "Cabify Peru conductores tarifas comisión",
+    "Cabify Peru seguridad servicios premium",
+    
+    # === Yango ===
+    "Yango Peru noticias octubre noviembre diciembre 2024",
+    "Yango Lima taxi aplicativo promociones",
+    "Yango Peru conductores registro tarifas",
+    "Yango Delivery Peru noticias",
+    
+    # === Rappi ===
+    "Rappi Peru noticias delivery octubre noviembre 2024",
+    "Rappi Peru promociones restaurantes supermercados",
+    "Rappi Peru repartidores condiciones laborales",
+    
+    # === Bolt ===
+    "Bolt Peru taxi noticias 2024",
+    "Bolt Lima promociones descuentos",
+    
+    # === MERCADO GENERAL ===
+    "taxi aplicativo Peru regulación ATU MTC 2024",
+    "taxi aplicativo Peru ley normativa congreso",
+    "transporte privado Peru Lima regulación municipal",
+    
+    # === COMPETENCIA ===
+    "Uber vs inDrive vs DiDi Peru competencia mercado",
+    "aplicativos taxi Peru ranking descargas popularidad",
+    "guerra precios taxi aplicativo Peru Lima",
+    
+    # === CONDUCTORES ===
+    "conductores aplicativo Peru protesta paro huelga 2024",
+    "conductores Uber inDrive DiDi Peru ganancias salario",
+    "requisitos ser conductor Uber inDrive DiDi Peru",
+    
+    # === SEGURIDAD ===
+    "seguridad taxi aplicativo Peru robos asaltos 2024",
+    "accidentes taxi aplicativo Peru Lima 2024",
+    "verificación conductores aplicativo Peru seguridad",
+    
+    # === TARIFAS Y PRECIOS ===
+    "tarifas taxi aplicativo Peru comparación precios",
+    "comisión conductores Uber inDrive DiDi Peru 2024",
+    "precio carrera taxi aplicativo Lima Peru",
+    
+    # === TECNOLOGÍA ===
+    "inteligencia artificial taxi aplicativo Peru",
+    "nuevas funciones app Uber DiDi inDrive Peru",
+    "pagos digitales taxi aplicativo Peru Yape Plin",
+    
+    # === DELIVERY ===
+    "delivery Peru Uber Eats Rappi DiDi Food 2024",
+    "repartidores Peru condiciones trabajo delivery",
+    "restaurantes Peru apps delivery comisiones",
+    
+    # === NOTICIAS RECIENTES (últimos 30 días) ===
+    "Uber Peru noticias hoy última semana diciembre",
+    "inDrive Peru noticias recientes diciembre 2024",
+    "DiDi Peru última hora noticias diciembre",
+    "taxi aplicativo Peru noticias semana actual",
 ]
 
 
 def get_predefined_queries() -> List[str]:
     """Get list of predefined search queries for automatic collection"""
     return PREDEFINED_QUERIES
+
+
+def get_queries_count() -> int:
+    """Get total number of predefined queries"""
+    return len(PREDEFINED_QUERIES)
 
 
 # =============================================================================
