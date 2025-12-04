@@ -5,12 +5,16 @@ from pydantic import BaseModel
 from typing import Optional, List
 from uuid import UUID
 from datetime import datetime, timedelta
+import asyncio
+import structlog
 
 from app.api.deps import get_database, verify_clerk_token
 from app.models import NewsItem
 from app.services.news_scraper import NewsScraperService
+from app.news_config.news_sources import get_predefined_queries
 
 router = APIRouter()
+logger = structlog.get_logger()
 
 
 class SearchNewsRequest(BaseModel):
@@ -162,4 +166,59 @@ async def get_suggested_topics(
 ):
     """Get suggested search topics for news monitoring"""
     return SuggestedTopics()
+
+
+@router.post("/collect")
+async def collect_news(
+    db: AsyncSession = Depends(get_database),
+    # user: dict = Depends(verify_clerk_token),  # TODO: re-enable auth after testing
+):
+    """
+    Collect news using predefined search queries.
+    
+    This endpoint triggers automatic news collection from all predefined
+    search queries. Used by the "Обновить данные" button in the UI.
+    """
+    queries = get_predefined_queries()
+    scraper = NewsScraperService(db)
+    
+    total_results = []
+    errors = []
+    
+    logger.info("Starting news collection", query_count=len(queries))
+    
+    for query in queries:
+        try:
+            logger.info("Searching", query=query)
+            results = await scraper.search(
+                query=query,
+                competitors=None,
+                language="es",
+            )
+            total_results.extend(results)
+            logger.info("Search complete", query=query, results_count=len(results))
+            
+            # Small delay between requests to avoid rate limiting
+            await asyncio.sleep(1)
+            
+        except Exception as e:
+            logger.error("Search failed", query=query, error=str(e))
+            errors.append({"query": query, "error": str(e)})
+    
+    # Remove duplicates by URL
+    unique_results = {r.get("source_url"): r for r in total_results}
+    
+    logger.info("Collection complete", 
+                total_found=len(total_results), 
+                unique=len(unique_results),
+                errors=len(errors))
+    
+    return {
+        "status": "ok",
+        "queries_executed": len(queries),
+        "total_found": len(total_results),
+        "unique_items": len(unique_results),
+        "errors": errors,
+        "results": list(unique_results.values())[:20],  # Return first 20 for preview
+    }
 

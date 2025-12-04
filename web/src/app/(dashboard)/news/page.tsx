@@ -5,7 +5,6 @@ import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import {
     Newspaper,
-    Search,
     ExternalLink,
     RefreshCw,
     Filter,
@@ -16,10 +15,11 @@ import {
     Calendar,
     Building2,
     Tag,
+    Download,
+    Clock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -73,6 +73,7 @@ const topicLabels: Record<string, string> = {
     promo: 'Промо',
     expansion: 'Расширение',
     regulation: 'Регулирование',
+    general: 'Общее',
 }
 
 const sentimentIcons = {
@@ -84,13 +85,14 @@ const sentimentIcons = {
 export default function NewsPage() {
     const [news, setNews] = useState<NewsItem[]>([])
     const [loading, setLoading] = useState(true)
-    const [searching, setSearching] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('')
+    const [collecting, setCollecting] = useState(false)
     const [selectedCompetitor, setSelectedCompetitor] = useState<string>('all')
     const [totalNews, setTotalNews] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [error, setError] = useState<string | null>(null)
+    const [lastCollected, setLastCollected] = useState<string | null>(null)
+    const [collectStatus, setCollectStatus] = useState<string | null>(null)
 
     const fetchNews = async (page = 1) => {
         setLoading(true)
@@ -112,6 +114,11 @@ export default function NewsPage() {
             setTotalNews(data.total)
             setCurrentPage(data.page)
             setTotalPages(data.pages)
+            
+            // Get last collected time from the most recent item
+            if (data.items.length > 0) {
+                setLastCollected(data.items[0].collected_at)
+            }
         } catch (err) {
             setError('Ошибка загрузки новостей')
             console.error(err)
@@ -120,32 +127,31 @@ export default function NewsPage() {
         }
     }
 
-    const handleSearch = async () => {
-        if (!searchQuery.trim()) return
-        
-        setSearching(true)
+    const handleCollectNews = async () => {
+        setCollecting(true)
         setError(null)
+        setCollectStatus('Сбор данных... Это может занять 1-2 минуты')
+        
         try {
-            const response = await fetch(`${API_URL}/api/news/search`, {
+            const response = await fetch(`${API_URL}/api/news/collect`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    query: searchQuery,
-                    competitors: selectedCompetitor !== 'all' ? [selectedCompetitor] : undefined,
-                    language: 'es',
-                }),
             })
             
-            if (!response.ok) throw new Error('Search failed')
+            if (!response.ok) throw new Error('Collection failed')
             
             const data = await response.json()
-            // Refresh the news list after search
+            setCollectStatus(`Найдено ${data.unique_items} новых материалов`)
+            
+            // Refresh the news list after collection
             await fetchNews()
+            
+            setTimeout(() => setCollectStatus(null), 5000)
         } catch (err) {
-            setError('Ошибка поиска')
+            setError('Ошибка сбора данных')
             console.error(err)
         } finally {
-            setSearching(false)
+            setCollecting(false)
         }
     }
 
@@ -158,67 +164,106 @@ export default function NewsPage() {
         return <Icon className={`h-4 w-4 ${color}`} />
     }
 
+    const formatLastCollected = (dateStr: string) => {
+        try {
+            const date = new Date(dateStr)
+            const now = new Date()
+            const diffMs = now.getTime() - date.getTime()
+            const diffMins = Math.floor(diffMs / 60000)
+            const diffHours = Math.floor(diffMs / 3600000)
+            const diffDays = Math.floor(diffMs / 86400000)
+            
+            if (diffMins < 60) return `${diffMins} мин. назад`
+            if (diffHours < 24) return `${diffHours} ч. назад`
+            return `${diffDays} дн. назад`
+        } catch {
+            return 'неизвестно'
+        }
+    }
+
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Новости рынка</h1>
-                <p className="text-muted-foreground">
-                    Мониторинг новостей о конкурентах через Parallel AI
-                </p>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Новости рынка</h1>
+                    <p className="text-muted-foreground">
+                        Автоматический мониторинг конкурентов через Parallel AI
+                    </p>
+                </div>
+                
+                <Button 
+                    onClick={handleCollectNews} 
+                    disabled={collecting}
+                    size="lg"
+                    className="bg-blue-600 hover:bg-blue-700"
+                >
+                    {collecting ? (
+                        <>
+                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                            Сбор данных...
+                        </>
+                    ) : (
+                        <>
+                            <Download className="h-5 w-5 mr-2" />
+                            Обновить данные
+                        </>
+                    )}
+                </Button>
             </div>
 
-            {/* Search & Filters */}
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1 flex gap-2">
-                            <Input
-                                placeholder="Поиск новостей (например: Uber promociones Lima)"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                className="flex-1"
-                            />
-                            <Button onClick={handleSearch} disabled={searching}>
-                                {searching ? (
-                                    <RefreshCw className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    <Search className="h-4 w-4" />
-                                )}
-                            </Button>
-                        </div>
-                        
-                        <Select value={selectedCompetitor} onValueChange={setSelectedCompetitor}>
-                            <SelectTrigger className="w-[180px]">
-                                <Filter className="h-4 w-4 mr-2" />
-                                <SelectValue placeholder="Конкурент" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Все конкуренты</SelectItem>
-                                <SelectItem value="uber">Uber</SelectItem>
-                                <SelectItem value="didi">DiDi</SelectItem>
-                                <SelectItem value="indrive">inDrive</SelectItem>
-                                <SelectItem value="cabify">Cabify</SelectItem>
-                                <SelectItem value="yango">Yango</SelectItem>
-                                <SelectItem value="rappi">Rappi</SelectItem>
-                                <SelectItem value="bolt">Bolt</SelectItem>
-                            </SelectContent>
-                        </Select>
+            {/* Status Banner */}
+            {collectStatus && (
+                <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="py-3 flex items-center gap-2 text-blue-700">
+                        <RefreshCw className={`h-4 w-4 ${collecting ? 'animate-spin' : ''}`} />
+                        {collectStatus}
+                    </CardContent>
+                </Card>
+            )}
 
-                        <Button variant="outline" onClick={() => fetchNews()}>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Обновить
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Filters & Stats Row */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="flex gap-4 items-center">
+                    <Select value={selectedCompetitor} onValueChange={setSelectedCompetitor}>
+                        <SelectTrigger className="w-[180px]">
+                            <Filter className="h-4 w-4 mr-2" />
+                            <SelectValue placeholder="Конкурент" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Все конкуренты</SelectItem>
+                            <SelectItem value="uber">Uber</SelectItem>
+                            <SelectItem value="didi">DiDi</SelectItem>
+                            <SelectItem value="indrive">inDrive</SelectItem>
+                            <SelectItem value="cabify">Cabify</SelectItem>
+                            <SelectItem value="yango">Yango</SelectItem>
+                            <SelectItem value="rappi">Rappi</SelectItem>
+                            <SelectItem value="bolt">Bolt</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {lastCollected && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>Обновлено: {formatLastCollected(lastCollected)}</span>
+                        </div>
+                    )}
+                </div>
+
+                <Button variant="ghost" size="sm" onClick={() => fetchNews()}>
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Обновить список
+                </Button>
+            </div>
 
             {/* Stats */}
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex items-center gap-2">
-                            <Newspaper className="h-5 w-5 text-blue-500" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <Newspaper className="h-5 w-5 text-blue-600" />
+                            </div>
                             <div>
                                 <p className="text-2xl font-bold">{totalNews}</p>
                                 <p className="text-xs text-muted-foreground">всего новостей</p>
@@ -228,8 +273,10 @@ export default function NewsPage() {
                 </Card>
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-green-500" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                                <TrendingUp className="h-5 w-5 text-green-600" />
+                            </div>
                             <div>
                                 <p className="text-2xl font-bold">
                                     {news.filter(n => n.sentiment === 'positive').length}
@@ -241,8 +288,10 @@ export default function NewsPage() {
                 </Card>
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex items-center gap-2">
-                            <TrendingDown className="h-5 w-5 text-red-500" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <TrendingDown className="h-5 w-5 text-red-600" />
+                            </div>
                             <div>
                                 <p className="text-2xl font-bold">
                                     {news.filter(n => n.sentiment === 'negative').length}
@@ -254,8 +303,10 @@ export default function NewsPage() {
                 </Card>
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex items-center gap-2">
-                            <Building2 className="h-5 w-5 text-purple-500" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                                <Building2 className="h-5 w-5 text-purple-600" />
+                            </div>
                             <div>
                                 <p className="text-2xl font-bold">
                                     {new Set(news.flatMap(n => n.competitors_mentioned)).size}
@@ -299,9 +350,14 @@ export default function NewsPage() {
                         <CardContent className="pt-6">
                             <div className="text-center py-12">
                                 <Newspaper className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                                <p className="text-muted-foreground">
-                                    Новостей пока нет. Выполните поиск, чтобы добавить.
+                                <p className="text-lg font-medium mb-2">Новостей пока нет</p>
+                                <p className="text-muted-foreground mb-4">
+                                    Нажмите «Обновить данные», чтобы собрать новости о конкурентах
                                 </p>
+                                <Button onClick={handleCollectNews} disabled={collecting}>
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Обновить данные
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -401,4 +457,3 @@ export default function NewsPage() {
         </div>
     )
 }
-

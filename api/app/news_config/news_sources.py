@@ -204,6 +204,36 @@ SEARCH_QUERY_TEMPLATES = {
 
 
 # =============================================================================
+# PREDEFINED SEARCH QUERIES (for automatic data collection)
+# =============================================================================
+
+# Эти запросы выполняются автоматически при нажатии кнопки "Обновить данные"
+PREDEFINED_QUERIES: List[str] = [
+    # Конкуренты + промо/новости
+    "Uber Peru promociones descuentos noticias 2024 2025",
+    "inDrive Peru promociones conductores noticias 2024 2025",
+    "DiDi Peru promociones descuentos noticias 2024 2025",
+    "Cabify Peru noticias promociones 2024 2025",
+    "Yango Peru noticias promociones 2024 2025",
+    
+    # Рыночные новости
+    "taxi aplicativo Peru regulación ATU MTC 2024 2025",
+    "Uber inDrive DiDi competencia Peru Lima 2024",
+    
+    # Изменения тарифов и комиссий  
+    "Uber inDrive DiDi comisión conductores Peru 2024",
+    
+    # Безопасность
+    "taxi aplicativo seguridad robos Peru Lima 2024",
+]
+
+
+def get_predefined_queries() -> List[str]:
+    """Get list of predefined search queries for automatic collection"""
+    return PREDEFINED_QUERIES
+
+
+# =============================================================================
 # PARALLEL AI SEARCH PROMPT
 # =============================================================================
 
