@@ -52,7 +52,8 @@ interface NewsResponse {
     pages: number
 }
 
-const API_URL = 'https://yango-intel-test.onrender.com'
+// Use local API proxy to avoid CORS issues
+const API_URL = ''
 
 const competitorColors: Record<string, string> = {
     uber: 'bg-black text-white',
