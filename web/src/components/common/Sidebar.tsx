@@ -11,10 +11,12 @@ import {
     MessageSquare,
     FileText,
     Database,
+    Newspaper,
 } from 'lucide-react'
 
 const navigation = [
     { name: 'Обзор', href: '/', icon: LayoutDashboard },
+    { name: 'Новости', href: '/news', icon: Newspaper },
     { name: 'Тарифы', href: '/tariffs', icon: DollarSign },
     { name: 'Промоакции', href: '/promos', icon: Tag },
     { name: 'Релизы', href: '/releases', icon: Smartphone },
