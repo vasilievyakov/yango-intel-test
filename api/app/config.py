@@ -32,9 +32,15 @@ class Settings(BaseSettings):
     # Anthropic (optional fallback)
     ANTHROPIC_API_KEY: Optional[str] = None
     
-    # Parallel AI for web scraping
+    # Parallel AI for web search
     PARALLEL_API_KEY: Optional[str] = None
-    PARALLEL_BASE_URL: str = "https://api.parallel.ai/v1"
+    PARALLEL_BASE_URL: str = "https://api.parallel.ai/v1beta"
+    PARALLEL_BETA_HEADER: str = "search-extract-2025-10-10"
+    
+    # Alternative search providers
+    PERPLEXITY_API_KEY: Optional[str] = None
+    TAVILY_API_KEY: Optional[str] = None
+    SERPAPI_KEY: Optional[str] = None
     
     # Telegram notifications (optional)
     TELEGRAM_BOT_TOKEN: Optional[str] = None
