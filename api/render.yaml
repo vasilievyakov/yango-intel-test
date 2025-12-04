@@ -1,0 +1,53 @@
+# Render Blueprint for Yango Competitive Intelligence API
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: yango-intel-api
+    runtime: python
+    region: frankfurt
+    plan: free  # Change to 'starter' for production ($7/mo)
+    
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    
+    healthCheckPath: /health
+    
+    envVars:
+      # Database - set in Render Dashboard
+      - key: DATABASE_URL
+        sync: false
+      
+      # Google Gemini AI
+      - key: GOOGLE_API_KEY
+        sync: false
+      
+      # Parallel AI for web scraping
+      - key: PARALLEL_API_KEY
+        sync: false
+      
+      # Security
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:3000
+      
+      # Clerk Auth
+      - key: CLERK_JWKS_URL
+        sync: false
+      
+      - key: CLERK_ISSUER
+        sync: false
+      
+      # App settings
+      - key: DEBUG
+        value: "false"
+
+# Optional: Add a PostgreSQL database on Render
+# Uncomment if you want to use Render PostgreSQL instead of Supabase
+# databases:
+#   - name: yango-intel-db
+#     plan: free
+#     region: frankfurt
+

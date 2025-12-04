@@ -1,0 +1,2 @@
+# Yango Competitive Intelligence API
+
