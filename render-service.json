@@ -1,0 +1,23 @@
+{
+    "type": "web_service",
+    "name": "yango-intel-api",
+    "ownerId": "tea-d39u27juibrs73f5s2jg",
+    "repo": "https://github.com/vasilievyakov/yango-intel-test",
+    "autoDeploy": "yes",
+    "branch": "master",
+    "rootDir": "api",
+    "serviceDetails": {
+        "runtime": "python",
+        "region": "frankfurt",
+        "plan": "free",
+        "buildCommand": "pip install -r requirements.txt",
+        "startCommand": "uvicorn app.main:app --host 0.0.0.0 --port $PORT",
+        "envVars": [
+            {"key": "DATABASE_URL", "value": "postgresql+asyncpg://postgres.ivcineystkpntusizpfj:YangoIntel2025!@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"},
+            {"key": "GOOGLE_API_KEY", "value": "AIzaSyDjfRjUJtefcPBvo_VHynJLVWMQiiKsJeA"},
+            {"key": "PARALLEL_API_KEY", "value": "Vf8-HwMjZaFBzhI6I_3iFnnXE2MgwgyGx5pON0xg"},
+            {"key": "WEBHOOK_SECRET", "value": "yango-intel-webhook-secret-2025"},
+            {"key": "ALLOWED_ORIGINS", "value": "http://localhost:3000"}
+        ]
+    }
+}

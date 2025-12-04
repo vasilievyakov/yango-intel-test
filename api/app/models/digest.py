@@ -21,7 +21,7 @@ class Digest(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     
     # Metadata about what was included in the digest
-    metadata: Mapped[dict | None] = mapped_column(JSONB)
+    digest_metadata: Mapped[dict | None] = mapped_column(JSONB, name="metadata")
     
     created_by: Mapped[str | None] = mapped_column(String(100))  # Clerk user ID
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

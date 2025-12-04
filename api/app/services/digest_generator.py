@@ -113,7 +113,7 @@ class DigestGeneratorService:
             period_start=period_start,
             period_end=period_end,
             content=content,
-            metadata={
+            digest_metadata={
                 "releases_count": len(releases),
                 "tariff_changes_count": len(tariff_changes),
                 "active_promos_count": len(promos),
@@ -133,7 +133,7 @@ class DigestGeneratorService:
             "period_start": period_start.isoformat(),
             "period_end": period_end.isoformat(),
             "content": content,
-            "metadata": digest.metadata,
+            "metadata": digest.digest_metadata,
             "created_at": digest.created_at.isoformat(),
         }
     
