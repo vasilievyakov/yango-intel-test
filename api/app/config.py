@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     
     # Security
     WEBHOOK_SECRET: str = "change-me-in-production"
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "*"
     
     # Clerk Auth
     CLERK_JWKS_URL: Optional[str] = None
